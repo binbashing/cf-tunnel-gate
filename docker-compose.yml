@@ -1,11 +1,13 @@
 version: '3'
 services:
+  
   init:
     build: init/
     restart: on-failure
     volumes:
       - ./logs/:/logs
     entrypoint: /entrypoint.sh
+  
   cloudflared:
     image: cloudflare/cloudflared:latest
     pull_policy: always
@@ -20,6 +22,7 @@ services:
     depends_on:
       owasp-crs-ngxblocker:
           condition: service_healthy
+  
   owasp-crs-ngxblocker:
     image: binbashing/owasp-crs-ngxblocker:latest
     pull_policy: always
@@ -33,6 +36,7 @@ services:
     depends_on:
       init:
           condition: service_completed_successfully
+  
   fail2ban:
     image: binbashing/fail2ban-cf-iplist:latest
     pull_policy: always
@@ -54,6 +58,21 @@ services:
     depends_on:
       init:
           condition: service_completed_successfully
+
+  logrotate:
+    image: binbashing/logrotate:latest
+    pull_policy: always
+    restart: unless-stopped
+    networks:
+      - cf-tunnel-gate
+    volumes:
+      - ./logs:/logs
+    environment:
+      - LOGS
+    depends_on:
+      init:
+          condition: service_completed_successfully
+
 networks:
   cf-tunnel-gate: {}
 
