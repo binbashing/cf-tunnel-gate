@@ -1,0 +1,59 @@
+version: '3'
+services:
+  init:
+    build: init/
+    restart: on-failure
+    volumes:
+      - ./logs/:/logs
+    entrypoint: /entrypoint.sh
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    pull_policy: always
+    restart: unless-stopped
+    networks:
+      - cf-tunnel-gate
+    links:
+      - owasp-crs-ngxblocker:cf-tunnel-gate
+    environment:
+      - TUNNEL_TOKEN
+    command: tunnel --no-autoupdate run
+    depends_on:
+      owasp-crs-ngxblocker:
+          condition: service_healthy
+  owasp-crs-ngxblocker:
+    image: binbashing/owasp-crs-ngxblocker:latest
+    pull_policy: always
+    restart: unless-stopped
+    networks:
+      - cf-tunnel-gate
+    environment:
+      - BACKEND
+    volumes:
+      - ./logs:/var/log/nginx
+    depends_on:
+      init:
+          condition: service_completed_successfully
+  fail2ban:
+    image: binbashing/fail2ban-cf-iplist:latest
+    pull_policy: always
+    restart: unless-stopped
+    networks:
+      - cf-tunnel-gate
+    volumes:
+      - ./logs/fail2ban.log:/var/log/fail2ban.log
+      - ./logs/access.log:/var/log/nginx/access.log
+      - ./logs/error.log:/var/log/nginx/error.log
+      - ./fail2ban/jail.local:/jail.local
+      - ./fail2ban/nginx-403-444.conf:/etc/fail2ban/filter.d/nginx-403-444.conf
+      - ./fail2ban/data:/var/lib/fail2ban
+    environment:
+      - CF_API_TOKEN
+      - BANTIME
+      - FINDTIME
+      - MAXRETRY
+    depends_on:
+      init:
+          condition: service_completed_successfully
+networks:
+  cf-tunnel-gate: {}
+

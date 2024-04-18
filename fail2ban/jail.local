@@ -1,0 +1,36 @@
+# Jail.local configuration for Fail2ban
+
+[sshd]
+enabled = false
+
+[sshd-ddos]
+enabled = false
+
+[DEFAULT]
+# Specify the email address to receive notifications
+destemail = admin@example.com
+
+# Ignore self-generated bans to avoid loops
+ignoreip = 127.0.0.1/8
+
+# Set the backend used to store and retrieve data
+backend = pyinotify
+
+# Set the protocol used for communication
+protocol = tcp
+
+# Set the default ban time in seconds (e.g., 600 seconds = 10 minutes)
+bantime = $BANTIME
+
+# Set the default find time in seconds (e.g., 600 seconds = 10 minutes)
+findtime = $FINDTIME
+
+# Set the maximum number of failures before a host gets banned
+maxretry = $MAXRETRY
+
+[nginx-403-444]
+enabled = true
+port = http,https
+filter = nginx-403-444
+logpath = /var/log/nginx/access.log
+action = cloudflare-iplist
