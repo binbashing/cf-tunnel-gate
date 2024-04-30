@@ -2,9 +2,10 @@ version: '3'
 services:
   
   init:
-    build: init/
+    image: alpine:latest
     restart: on-failure
     volumes:
+      - ./init/entrypoint.sh:/entrypoint.sh
       - ./logs/:/logs
     entrypoint: /entrypoint.sh
   
@@ -55,20 +56,6 @@ services:
       - BANTIME
       - FINDTIME
       - MAXRETRY
-    depends_on:
-      init:
-          condition: service_completed_successfully
-
-  logrotate:
-    image: binbashing/logrotate:latest
-    pull_policy: always
-    restart: unless-stopped
-    networks:
-      - cf-tunnel-gate
-    volumes:
-      - ./logs:/logs
-    environment:
-      - LOGS
     depends_on:
       init:
           condition: service_completed_successfully
