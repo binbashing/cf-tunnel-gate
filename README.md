@@ -1,6 +1,10 @@
 # cf-tunnel-gate
 
-CF Tunnel Gate is a Docker compose project designed to easily deploy and configure these components as a collection of integrated Docker containers.  Basic usage is covered in a handful of environment variables, please see each project for detailed configuration information.
+CF Tunnel Gate is a secure Reverse Proxy, Web Application Firewall (WAF), and Intrusion Prevention System(WAF), designed for self-hosted projects and backed with Cloudflare Tunnels.
+This project combines a number of common open source tools in a single Docker Compose application preconfigured for easy setup with just a few environment varables.  
+Basic usage for most use cases is covered below, please see each project for additional configuration information.
+
+For more detailed information and insights about the project, check out this [dev.to post](https://dev.to/binbashing/securing-self-hosted-services-with-cf-tunnel-gate-4alp).
 
 Backing Containers:
 - [cloudflare/cloudflared](https://hub.docker.com/r/cloudflare/cloudflared)
